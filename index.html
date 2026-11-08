@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TayDown — Yüksek Hızlı İndirme ve Medya Yöneticisi</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-violet"></div>
+  <div class="ambient-glow glow-emerald"></div>
+
+  <div class="app-shell">
+    <!-- ÜST BAŞLIK ÇUBUĞU (PENCERE BAŞLIĞI + CANLI TELEMETRİ) -->
+    <header class="titlebar">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 36 36" fill="none">
+            <defs>
+              <linearGradient id="tdGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#22D3EE" />
+                <stop offset="50%" stop-color="#3B82F6" />
+                <stop offset="100%" stop-color="#8B5CF6" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="32" height="32" rx="10" fill="url(#tdGrad)" fill-opacity="0.18" stroke="url(#tdGrad)" stroke-width="2"/>
+            <path d="M18 8V22M18 22L12 16M18 22L24 16" stroke="#22D3EE" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 26H26" stroke="#34D399" stroke-width="2.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title-row">
+            <h1 class="brand-title">TayDown</h1>
+            <span class="badge-version">PRO v1.0 • Reklamsız</span>
+            <span class="badge-engine" id="engineStatusBadge">16-Kanal Turbo Motor Aktif</span>
+          </div>
+          <p class="brand-subtitle">Çok Parçalı Hızlandırıcı • YouTube &amp; X (Twitter) Video/Görsel Yakalayıcı</p>
+        </div>
+      </div>
+
+      <div class="telemetry-bar">
+        <div class="telemetry-pill">
+          <span class="telemetry-label">Anlık Hız</span>
+          <strong class="telemetry-value cyan" id="GlobalSpeedText">0.0 MB/sn</strong>
+        </div>
+        <div class="telemetry-pill">
+          <span class="telemetry-label">Aktif Kanal</span>
+          <strong class="telemetry-value emerald" id="ActiveThreadsText">0 / 16 Parça</strong>
+        </div>
+        <div class="telemetry-pill">
+          <span class="telemetry-label">Kayıt Klasörü</span>
+          <strong class="telemetry-value" id="TargetDirText">Downloads\TayDown</strong>
+        </div>
+        <button class="turbo-toggle active" id="TurboModeBtn" title="16 Parçalı Dinamik Segment Hızlandırıcı">
+          <span class="turbo-dot"></span>
+          <span id="TurboModeLabel">TURBO AÇIK</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ETKİLEYİCİ 3B / NEON KOMUT ARAÇ ÇUBUĞU (IDM MİMARİSİNDEN İLHAM ALAN AKSİYON BUTONLARI) -->
+    <section class="command-toolbar" aria-label="İndirme Komut Çubuğu">
+      <button class="cmd-btn btn-primary-cyan" id="BtnAddUrl" title="Yeni bir dosya veya medya bağlantısı ekle">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>URL Ekle</strong>
+          <small>Yeni Bağlantı</small>
+        </span>
+      </button>
+
+      <button class="cmd-btn btn-media-grabber" id="BtnMediaGrabber" title="YouTube veya X (Twitter) video ve görüntülerini yüksek kalitede indir">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+            <rect x="2.5" y="4.5" width="19" height="15" rx="4"/>
+            <polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>YouTube &amp; X İndir</strong>
+          <small>Video / Görsel Yakala</small>
+        </span>
+      </button>
+
+      <div class="toolbar-divider"></div>
+
+      <button class="cmd-btn btn-emerald" id="BtnResume" title="Seçili indirmeyi başlat veya devam ettir">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polygon points="6,4 20,12 6,20" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>Devam Et</strong>
+          <small>Seçiliyi Başlat</small>
+        </span>
+      </button>
+
+      <button class="cmd-btn btn-amber" id="BtnPause" title="Seçili indirmeyi duraklat">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="8" y1="5" x2="8" y2="19" stroke-linecap="round"/>
+            <line x1="16" y1="5" x2="16" y2="19" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>Duraklat</strong>
+          <small>Beklemeye Al</small>
+        </span>
+      </button>
+
+      <button class="cmd-btn btn-rose" id="BtnStopAll" title="Aktif tüm indirmeleri anında durdur">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>Tümünü Durdur</strong>
+          <small>Acil Fren</small>
+        </span>
+      </button>
+
+      <div class="toolbar-divider"></div>
+
+      <button class="cmd-btn btn-slate" id="BtnDelete" title="Seçili görevi listeden kaldır">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+            <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>Sil</strong>
+          <small>Seçiliyi Kaldır</small>
+        </span>
+      </button>
+
+      <button class="cmd-btn btn-slate" id="BtnClearDone" title="Tamamlanan tüm indirmeleri listeden temizle">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>Tam. Temizle</strong>
+          <small>Bitenleri Gizle</small>
+        </span>
+      </button>
+
+      <button class="cmd-btn btn-violet" id="BtnScheduler" title="Kuyruk zamanlayıcı ve hız sınırı ayarları">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7v5l3.5 2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>Programla</strong>
+          <small>Kuyruk &amp; Limit</small>
+        </span>
+      </button>
+
+      <button class="cmd-btn btn-indigo" id="BtnOptions" title="Tarayıcı yakalayıcı, parçalı indirme ve klasör seçenekleri">
+        <span class="cmd-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+            <circle cx="12" cy="12" r="3.2"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.08a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.08a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.08a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="cmd-text">
+          <strong>Seçenekler</strong>
+          <small>Ayarlar</small>
+        </span>
+      </button>
+    </section>
+
+    <!-- HIZLI AKILLI YAKALAMA ÇUBUĞU (YOUTUBE, X/TWITTER VE DOĞRUDAN LİNK) -->
+    <section class="smart-bar">
+      <div class="smart-input-group">
+        <span class="smart-badge" id="DetectedPlatformBadge">AKILLI ALGILAYICI</span>
+        <input
+          type="text"
+          id="QuickUrlInput"
+          placeholder="YouTube videosu, X (Twitter) gönderisi/görüntüsü veya doğrudan dosya bağlantısını (https://...) buraya yapıştırın..."
+          autocomplete="off"
+        />
+        <select id="QuickQualitySelect" aria-label="Kalite ve Format Seçimi">
+          <option value="2160p">4K Ultra HD (2160p MP4)</option>
+          <option value="1080p" selected>1080p Full HD (MP4)</option>
+          <option value="720p">720p HD (MP4)</option>
+          <option value="mp3">Sadece Ses (MP3 320kbps)</option>
+          <option value="image">Orijinal Görsel / Kare (PNG/JPG)</option>
+          <option value="direct">Doğrudan Dosya (Orijinal)</option>
+        </select>
+        <button class="smart-fetch-btn" id="QuickDownloadBtn">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Hemen İndir</span>
+        </button>
+      </div>
+      <div class="smart-presets">
+        <span class="preset-label">Kendi bağlantınızı yapıştırabilir veya hızlı test için tıklayabilirsiniz:</span>
+        <button class="preset-chip chip-yt" data-preset="https://www.youtube.com/watch?v=aqz-KE-bpKQ">
+          <span class="dot-yt"></span> YouTube Test Videosu (Big Buck Bunny)
+        </button>
+        <button class="preset-chip chip-iso" data-preset="https://proof.ovh.net/files/10Mb.dat">
+          <span class="dot-iso"></span> 16-Kanal Hız Test Dosyası (10 MB)
+        </button>
+      </div>
+    </section>
+
+    <!-- ANA ÇALIŞMA ALANI: SOL KATEGORİ AĞACI + ORTA TABLO + ALT SEGMENT DENETÇİSİ -->
+    <div class="workspace-grid">
+      <!-- SOL KATEGORİ PANELİ -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h2 class="sidebar-heading">KATEGORİLER</h2>
+          <ul class="category-list" id="CategoryList">
+            <li>
+              <button class="cat-item active" data-category="all">
+                <span class="cat-icon">📂</span>
+                <span class="cat-name">Tüm İndirmeler</span>
+                <span class="cat-count" id="Count-all">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="cat-item" data-category="social">
+                <span class="cat-icon">🎬</span>
+                <span class="cat-name">YouTube &amp; X Medya</span>
+                <span class="cat-count" id="Count-social">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="cat-item" data-category="video">
+                <span class="cat-icon">🎞️</span>
+                <span class="cat-name">Videolar</span>
+                <span class="cat-count" id="Count-video">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="cat-item" data-category="music">
+                <span class="cat-icon">🎵</span>
+                <span class="cat-name">Müzik &amp; Ses</span>
+                <span class="cat-count" id="Count-music">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="cat-item" data-category="archive">
+                <span class="cat-icon">🗜️</span>
+                <span class="cat-name">Sıkıştırılmış</span>
+                <span class="cat-count" id="Count-archive">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="cat-item" data-category="programs">
+                <span class="cat-icon">⚡</span>
+                <span class="cat-name">Programlar &amp; ISO</span>
+                <span class="cat-count" id="Count-programs">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="cat-item" data-category="docs">
+                <span class="cat-icon">📄</span>
+                <span class="cat-name">Belgeler &amp; Görsel</span>
+                <span class="cat-count" id="Count-docs">0</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <h2 class="sidebar-heading">DURUM FİLTRESİ</h2>
+          <ul class="category-list" id="StatusFilterList">
+            <li>
+              <button class="status-filter-btn active" data-status="all">
+                <span class="status-dot all"></span> Tümü
+              </button>
+            </li>
+            <li>
+              <button class="status-filter-btn" data-status="downloading">
+                <span class="status-dot downloading"></span> İndiriliyor
+              </button>
+            </li>
+            <li>
+              <button class="status-filter-btn" data-status="paused">
+                <span class="status-dot paused"></span> Duraklatıldı
+              </button>
+            </li>
+            <li>
+              <button class="status-filter-btn" data-status="completed">
+                <span class="status-dot completed"></span> Tamamlandı
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- CANLI HIZ GRAFİĞİ KARTI -->
+        <div class="speed-card">
+          <div class="speed-card-header">
+            <span>Canlı Bant Genişliği</span>
+            <strong id="PeakSpeedLabel">Tepe: 0.0 MB/sn</strong>
+          </div>
+          <canvas id="SpeedChartCanvas" width="210" height="68"></canvas>
+          <div class="speed-card-footer">
+            <span>Sıfır Reklam • Yerel Motor</span>
+            <span id="SpeedLimitBadge">Limit: Sınırsız</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ORTA PANEL: İNDİRME LİSTESİ + ALT 16-PARÇA SEGMENT ANALİZÖRÜ -->
+      <main class="main-panel">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="9" r="6"/>
+              <path d="M13.5 13.5L17 17" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="SearchInput" placeholder="Dosya adı, kaynak (YouTube, X) veya açıklamaya göre filtrele..." />
+          </div>
+          <div class="table-meta">
+            <span id="SelectionSummary">Henüz görev seçilmedi</span>
+          </div>
+        </div>
+
+        <!-- İNDİRME TABLOSU (IDM TÜRKÇE SÜTUN YAPISI + MODERN İLERLEME ÇUBUĞU) -->
+        <div class="table-container">
+          <table class="download-table" aria-label="İndirme Görevleri Tablosu">
+            <thead>
+              <tr>
+                <th style="width: 34%">Dosya Adı</th>
+                <th style="width: 11%">Kaynak / Kalite</th>
+                <th style="width: 22%">Durum &amp; İlerleme</th>
+                <th style="width: 10%">Boyut</th>
+                <th style="width: 10%">Kalan Süre</th>
+                <th style="width: 13%">Aktarım Oranı</th>
+              </tr>
+            </thead>
+            <tbody id="DownloadTableBody">
+              <!-- JS ile doldurulur -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ALT DETAY PANELİ: SEÇİLİ DOSYANIN 16-PARÇA (SEGMENT) CANLI GÖRSELLEŞTİRİCİSİ -->
+        <section class="inspector-panel" aria-label="Dinamik Parça ve Bağlantı Denetçisi">
+          <div class="inspector-header">
+            <div class="inspector-title-group">
+              <span class="inspector-badge" id="InspectorSourceBadge">HAZIR</span>
+              <h3 id="InspectorFileName">İndirme başlatmak için yukarıya bir bağlantı yapıştırın</h3>
+              <span class="inspector-url" id="InspectorUrl">Kayıt Klasörü: C:\Users\<kullanıcı>\Downloads\TayDown</span>
+            </div>
+            <div class="inspector-actions">
+              <button class="mini-action-btn" id="BtnSaveFile" title="Dosyayı doğrudan tarayıcı üzerinden aç veya kaydet">💾 Dosyayı Aç / Kaydet</button>
+              <button class="mini-action-btn" id="BtnOpenFolder" title="Kayıt klasörünü Windows Gezgini'nde göster">📁 Klasörü Aç</button>
+              <button class="mini-action-btn" id="BtnCopyLink" title="Kaynak bağlantıyı panoya kopyala">🔗 Bağlantıyı Kopyala</button>
+            </div>
+          </div>
+
+          <div class="segment-Bar-wrapper">
+            <div class="segment-bar-labels">
+              <span>Dinamik 16-Kanal Segment Haritası (Her blok ayrı bir paralel HTTP/Medya akışıdır)</span>
+              <strong id="InspectorProgressText">Beklemede (%0.0)</strong>
+            </div>
+            <div class="segment-grid" id="SegmentGrid">
+              <!-- 16 adet canlı parça çubuğu JS ile oluşturulur -->
+            </div>
+          </div>
+
+          <div class="connection-channels" id="ConnectionChannelsList">
+            <!-- Aktif parça bağlantı durumları -->
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: YOUTUBE & X (TWITTER) MEDYA YAKALAYICI VE URL EKLEME SİHİRBAZI -->
+  <div class="modal-backdrop hidden" id="MediaModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-pill">AKILLI MEDYA &amp; DOSYA YAKALAYICI</span>
+          <h2 id="ModalTitle">YouTube, X (Twitter) veya Dosya Bağlantısı Ekle</h2>
+        </div>
+        <button class="modal-close" id="CloseModalBtn" aria-label="Kapat">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <label class="field-label" for="ModalUrlInput">Medya veya Dosya Adresi (URL)</label>
+        <div class="modal-url-row">
+          <input
+            type="text"
+            id="ModalUrlInput"
+            placeholder="https://x.com/... veya https://www.youtube.com/watch?v=... veya doğrudan dosya adresi"
+          />
+          <button class="btn-analyze" id="BtnAnalyzeUrl">🔍 Çözümle</button>
+        </div>
+
+        <!-- ÇÖZÜMLENEN MEDYA ÖNİZLEME KARTI -->
+        <div class="media-preview-card" id="MediaPreviewBox">
+          <div class="media-thumb" id="PreviewThumb">
+            <span class="thumb-badge" id="PreviewPlatformTag">X / TWITTER</span>
+            <span class="thumb-duration" id="PreviewDuration">03:42 • 60 FPS</span>
+          </div>
+          <div class="media-meta">
+            <h4 id="PreviewTitle">Örnek: X (Twitter) &amp; YouTube 4K Medya Akışı Hazır</h4>
+            <p id="PreviewAuthor">Yükleyen: @kullanici • Reklamsız Doğrudan Akış</p>
+            <div class="quality-grid" id="ModalQualityGrid">
+              <label class="quality-option selected">
+                <input type="radio" name="modalQuality" value="2160p" checked />
+                <span><strong>4K 2160p</strong> <small>MP4 • ~420 MB</small></span>
+              </label>
+              <label class="quality-option">
+                <input type="radio" name="modalQuality" value="1080p" />
+                <span><strong>1080p Full HD</strong> <small>MP4 • ~145 MB</small></span>
+              </label>
+              <label class="quality-option">
+                <input type="radio" name="modalQuality" value="mp3" />
+                <span><strong>MP3 320kbps</strong> <small>Ses • ~8.9 MB</small></span>
+              </label>
+              <label class="quality-option">
+                <input type="radio" name="modalQuality" value="image" />
+                <span><strong>Yüksek Çözünürlüklü Görsel</strong> <small>PNG • Orijinal</small></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-grid-2">
+          <div>
+            <label class="field-label" for="ModalFileNameInput">Kaydedilecek Dosya Adı</label>
+            <input type="text" id="ModalFileNameInput" placeholder="Otomatik adlandırılır..." />
+          </div>
+          <div>
+            <label class="field-label" for="ModalThreadsSelect">Paralel Kanal (Segment) Sayısı</label>
+            <select id="ModalThreadsSelect">
+              <option value="16" selected>16 Kanal (Maksimum Turbo Hız)</option>
+              <option value="8">8 Kanal (Dengeli)</option>
+              <option value="4">4 Kanal (Standart)</option>
+              <option value="1">1 Kanal (Tek Akış)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="CancelModalBtn">İptal</button>
+        <button class="btn-queue-later" id="QueueLaterBtn">🕒 Kuyruğa Ekle (Sonra İndir)</button>
+        <button class="btn-start-now" id="StartNowBtn">⚡ Hemen İndirmeyi Başlat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROGRAMLAYICI & SEÇENEKLER -->
+  <div class="modal-backdrop hidden" id="SchedulerModal">
+    <div class="modal-card modal-compact">
+      <div class="modal-header">
+        <div>
+          <span class="modal-pill">KUYRUK PLANLAYICI &amp; MOTOR AYARLARI</span>
+          <h2>TayDown Otomasyon ve Hız Kontrolü</h2>
+        </div>
+        <button class="modal-close" id="CloseSchedulerBtn" aria-label="Kapat">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-row">
+          <div>
+            <strong>Maksimum Eşzamanlı Görev</strong>
+            <p>Aynı anda kaç dosyanın indirileceğini belirler</p>
+          </div>
+          <select id="MaxConcurrentSelect">
+            <option value="3">3 Dosya</option>
+            <option value="5" selected>5 Dosya</option>
+            <option value="10">10 Dosya</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Hız Sınırlayıcı (Bant Genişliği Koruması)</strong>
+            <p>Oyun veya yayın sırasında internetinizi korur</p>
+          </div>
+          <select id="SpeedLimitSelect">
+            <option value="0" selected>Sınırsız (Tam Kapasite Turbo)</option>
+            <option value="25">25 MB/sn Sınırla</option>
+            <option value="10">10 MB/sn Sınırla</option>
+            <option value="5">5 MB/sn Sınırla</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Pano Bağlantı Yakalayıcı (YouTube &amp; X Otomatik Algılama)</strong>
+            <p>Kopyalanan X ve YouTube linklerini otomatik yakalar</p>
+          </div>
+          <input type="checkbox" id="ClipboardWatchToggle" checked class="modern-checkbox" />
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Tüm İndirmeler Bitince</strong>
+            <p>Gece boyu süren büyük kuyruklar için güç eylemi</p>
+          </div>
+          <select id="PostActionSelect">
+            <option value="notify" selected>Sesli Bildirim Göster</option>
+            <option value="sleep">Bilgisayarı Uyku Moduna Al</option>
+            <option value="shutdown">Bilgisayarı Kapat</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-start-now" id="SaveSettingsBtn">✓ Ayarları Uygula</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: İNDİRİLENLER KLASÖRÜ GEZGİNİ -->
+  <div class="modal-backdrop hidden" id="FolderModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-pill">YEREL DİSK KLASÖR GEZGİNİ</span>
+          <h2>📂 İndirilen Dosyalar Klasörü</h2>
+        </div>
+        <button class="modal-close" id="CloseFolderModalBtn" aria-label="Kapat">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(34, 211, 238, 0.25); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 12px; color: #cbd5e1;">
+          <div><strong>Ana Klasör:</strong> <code>C:\Users\<kullanıcı>\Downloads\TayDown</code></div>
+          <div style="margin-top: 4px; color: #94a3b8;">Ayrıca her dosya doğrudan <code>C:\Users\<kullanıcı>\Downloads</code> ve <code>C:\Users\<kullanıcı>\Downloads\REA\TayDown\Indirilenler</code> klasörlerine de otomatik kopyalanır.</div>
+        </div>
+        <div id="FolderFilesList" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
+          <!-- JS ile doldurulur -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="CloseFolderFooterBtn">Kapat</button>
+        <button class="btn-start-now" id="ForceWindowsExplorerBtn">🖥️ Windows Gezgini Penceresini Öne Getir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BİLDİRİM TOAST -->
+  <div class="toast-container" id="ToastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
